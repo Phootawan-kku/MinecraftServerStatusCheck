@@ -1,14 +1,15 @@
 # Plub & Friend Survival Server - Status Page
 
-A single-file website that shows the live status of a Minecraft Java server: whether it is online, how many players are connected, and (when the server shares them) the usernames of everyone online.
+A small static website that shows the live status of a Minecraft Java server: whether it is online, how many players are connected, and (when the server shares them) the usernames of everyone online.
 
-The design is a modern dark UI with Minecraft touches: a pixel grass-block icon, a pixel-font player counter, a block-grid background, and pixelated player heads.
+The design is a modern layout built around a pixel-art landscape: a daytime scene with drifting clouds when the server is online, which turns into a starry night when it is offline. Below it, the page sits on a dirt texture with light cards, a hotbar-style capacity meter, and player tiles with Minecraft-style name tags.
 
 ## Features
 
 - Online / Offline status with a pulsing indicator
-- Player count with a capacity bar (for example `3 / 20`)
-- Usernames of online players, each with their Minecraft head
+- Player count with a hotbar-style capacity meter (for example `3/20`)
+- Day and night landscape that follows the server status
+- Usernames of online players, each with their Minecraft head and a name tag
 - Search box for the player list (appears when 6 or more players are online)
 - Server MOTD, version, and software shown when available
 - Copy-address button and manual Refresh button
@@ -20,22 +21,24 @@ The design is a modern dark UI with Minecraft touches: a pixel grass-block icon,
 ## Files
 
 ```
-minecraft-status.html   The whole website (HTML, CSS and JavaScript in one file)
-README.md               This file
+index.html    Page structure (the HTML)
+style.css     All styling
+script.js     Settings, landscape drawing, status fetching and rendering
+README.md     This file
 ```
 
-There is no build step and nothing to install.
+Keep the three site files in the same folder. There is no build step and nothing to install.
 
 ## Quick start
 
-1. Download `minecraft-status.html`.
-2. Open it in a web browser (double-click the file).
+1. Download `index.html`, `style.css`, and `script.js` into one folder.
+2. Open `index.html` in a web browser (double-click the file).
 
 You need an internet connection, because the page loads data and images from outside services (see "How it works").
 
 ## Configuration
 
-Settings are at the top of the `<script>` section in `minecraft-status.html`:
+Settings are at the top of `script.js`:
 
 ```js
 const SERVER_HOST = "138.2.92.246";
@@ -55,15 +58,15 @@ Keep `REFRESH_SECONDS` at 30 or higher so the free status services are not overl
 
 ### Changing colors
 
-The colors are CSS variables at the top of the `<style>` section. For example, change `--grass` and `--grass-dim` to switch the green accent to another color.
+The card and accent colors are CSS variables at the top of `style.css`. For example, change `--emerald` and `--emerald-d` to switch the green accent (buttons, capacity meter) to another color. The landscape itself is drawn in the `drawScene` function in `script.js`, where the sky, hill, grass, and dirt colors can be edited.
 
 ## Deploying
 
-Because it is one static file, it works on any static host:
+It is a static site (three files, no backend), so it works on any static host. Upload all three site files together:
 
-- **GitHub Pages:** put the file in a repository, rename it to `index.html`, and enable Pages in the repository settings.
-- **Netlify or Cloudflare Pages:** drag and drop the file (named `index.html`) into a new site.
-- **Your own web server:** copy the file into your web root (Nginx, Apache, and similar).
+- **GitHub Pages:** put the files in a repository and enable Pages in the repository settings.
+- **Netlify or Cloudflare Pages:** drag and drop the folder containing the files into a new site.
+- **Your own web server:** copy the files into your web root (Nginx, Apache, and similar).
 
 ## How it works
 
