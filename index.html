@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plub &amp; Friend Survival Server</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1310;
+    --surface: #151c17;
+    --surface-2: #1b241d;
+    --line: #28342b;
+    --grass: #6cc24a;
+    --grass-dim: #2f5a22;
+    --dirt: #c98b4e;
+    --text: #e9f0ea;
+    --muted: #8fa396;
+    --bad: #ef6b5b;
+    --sans: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --pixel: 'Press Start 2P', 'Courier New', monospace;
+    --r: 18px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(900px 420px at 15% -10%, rgba(108,194,74,.14), transparent 70%),
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: auto, 32px 32px, 32px 32px;
+    background-attachment: fixed;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 48px 20px 64px; }
+
+  /* top bar */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 44px; height: 44px; border-radius: 12px; image-rendering: pixelated;
+    border: 1px solid var(--line); background: var(--surface-2);
+  }
+  .brand h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+  .brand p { margin: 0; color: var(--muted); font-size: 14px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px; font-weight: 500; font-size: 14px;
+    background: var(--surface); border: 1px solid var(--line); color: var(--muted);
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+  .online .pill { color: var(--grass); border-color: var(--grass-dim); }
+  .online .dot { background: var(--grass); animation: pulse 2s infinite; }
+  .offline .pill { color: var(--bad); border-color: #5a2b25; }
+  .offline .dot { background: var(--bad); }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(108,194,74,.55); } 70% { box-shadow: 0 0 0 9px rgba(108,194,74,0); } 100% { box-shadow: 0 0 0 0 rgba(108,194,74,0); } }
+
+  /* hero */
+  .hero {
+    display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 26px;
+    padding: 32px; margin-bottom: 24px;
+  }
+  .server-row { display: flex; gap: 20px; align-items: flex-start; }
+  .icon { width: 80px; height: 80px; border-radius: 16px; image-rendering: pixelated; border: 1px solid var(--line); flex: none; background: var(--surface-2); }
+  .motd { white-space: pre-line; font-size: 18px; margin: 0 0 6px; font-weight: 500; }
+  .meta { color: var(--muted); font-size: 14px; margin: 0 0 16px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .addr {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 15px;
+    padding: 10px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); color: var(--dirt);
+  }
+  button {
+    font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 10px 16px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--surface-2); color: var(--text);
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  button:hover { background: #243027; border-color: #3a4a3e; }
+  button:active { transform: translateY(1px); }
+  button.primary { background: var(--grass); border-color: var(--grass); color: #0c1a07; }
+  button.primary:hover { background: #7fd35c; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--grass); outline-offset: 3px; }
+
+  .stat { text-align: right; min-width: 190px; }
+  .big { font-family: var(--pixel); font-size: 44px; line-height: 1; letter-spacing: -2px; }
+  .big small { font-size: 18px; color: var(--muted); letter-spacing: 0; }
+  .stat-label { color: var(--muted); font-size: 14px; margin: 10px 0 12px; }
+  .cap { height: 10px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+  .cap div { height: 100%; width: 0; border-radius: 99px; background: var(--grass); transition: width .6s ease; }
+
+  /* players */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 26px; padding: 28px 32px 32px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .card-head h2 { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .badge { font-size: 13px; padding: 2px 10px; border-radius: 99px; background: var(--grass-dim); color: #cdeebc; font-weight: 600; }
+  input[type=search] {
+    font-family: var(--sans); font-size: 14px; color: var(--text);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; width: 220px;
+  }
+  input::placeholder { color: #667a6b; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .player {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px;
+    transition: border-color .15s, transform .15s;
+  }
+  .player:hover { border-color: var(--grass-dim); transform: translateY(-2px); }
+  .player img { width: 40px; height: 40px; border-radius: 8px; image-rendering: pixelated; flex: none; background: var(--bg); }
+  .player span { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .skeleton { height: 62px; border-radius: 14px; background: linear-gradient(90deg, var(--surface-2) 25%, #222d25 50%, var(--surface-2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .note { color: var(--muted); padding: 6px 0; }
+
+  .foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 14px; margin-top: 20px; padding: 0 4px; }
+
+  @media (max-width: 720px) {
+    main { padding-top: 28px; }
+    .hero { grid-template-columns: 1fr; padding: 22px; }
+    .stat { text-align: left; }
+    .card { padding: 22px; }
+    input[type=search] { width: 100%; }
+    .server-row { flex-direction: column; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main id="app" class="">
+  <header class="top">
+    <div class="brand">
+      <img class="logo" id="logo" alt="">
+      <div>
+        <h1 id="title"></h1>
+        <p>Live server status</p>
+      </div>
+    </div>
+    <div class="pill"><span class="dot"></span><span id="status">Checking...</span></div>
+  </header>
+
+  <section class="hero" aria-live="polite">
+    <div class="server-row">
+      <img class="icon" id="icon" alt="Server icon">
+      <div>
+        <p class="motd" id="motd">Contacting server...</p>
+        <p class="meta" id="meta"></p>
+        <div class="actions">
+          <span class="addr" id="address"></span>
+          <button class="primary" id="copy" type="button">Copy address</button>
+          <button id="refresh" type="button">Refresh</button>
+        </div>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="big" id="count">-</div>
+      <div class="stat-label" id="countLabel">players online</div>
+      <div class="cap"><div id="cap"></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Who's online <span class="badge" id="badge">0</span></h2>
+      <input type="search" id="search" placeholder="Search players" aria-label="Search players" hidden>
+    </div>
+    <div class="grid" id="players"></div>
+    <div class="note" id="note"></div>
+  </section>
+
+  <div class="foot">
+    <span id="updated">Last checked: -</span>
+    <span id="next"></span>
+  </div>
+</main>
+
+<script>
+/* ===== Settings ===== */
+const SERVER_HOST = "138.2.92.246";
+const SERVER_PORT = 25566;
+const SERVER_NAME = "Plub & Friend Survival Server";
+const REFRESH_SECONDS = 30;
+/* ==================== */
+
+const ADDRESS = SERVER_HOST + ":" + SERVER_PORT;
+const $ = id => document.getElementById(id);
+let currentList = [];
+
+/* Generated pixel grass-block icon (used until the server icon loads) */
+function grassBlock(size = 16) {
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const g = c.getContext("2d");
+  const rnd = (b, s) => Math.max(0, Math.min(255, b + Math.floor((Math.random() - .5) * s)));
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const top = y < 5 || (y < 7 && Math.random() < .45);
+    const r = top ? [92, 160, 56] : [134, 96, 58];
+    const d = 34;
+    g.fillStyle = `rgb(${rnd(r[0], d)},${rnd(r[1], d)},${rnd(r[2], d)})`;
+    g.fillRect(x, y, 1, 1);
+  }
+  return c.toDataURL();
+}
+const blockImg = grassBlock();
+$("logo").src = blockImg;
+$("icon").src = blockImg;
+$("title").textContent = SERVER_NAME;
+document.title = SERVER_NAME + " - Status";
+$("address").textContent = ADDRESS;
+
+$("copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(ADDRESS); $("copy").textContent = "Copied"; }
+  catch { $("copy").textContent = "Press Ctrl+C"; }
+  setTimeout(() => $("copy").textContent = "Copy address", 1600);
+});
+
+/* Fetch with fallback between two public status APIs */
+async function fetchStatus() {
+  try {
+    const r = await fetch(`https://api.mcsrvstat.us/3/${ADDRESS}`, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    return {
+      online: !!d.online,
+      motd: d.motd && d.motd.clean ? d.motd.clean.join("\n") : "",
+      online_n: d.players ? d.players.online : 0,
+      max_n: d.players ? d.players.max : 0,
+      list: d.players && d.players.list ? d.players.list.map(p => p.name) : null,
+      version: d.version || "",
+      software: d.software || "",
+      icon: d.icon || null
+    };
+  } catch (e1) {
+    const r = await fetch(`https://api.mcstatus.io/v2/status/java/${ADDRESS}`, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    return {
+      online: !!d.online,
+      motd: d.motd ? d.motd.clean : "",
+      online_n: d.players ? d.players.online : 0,
+      max_n: d.players ? d.players.max : 0,
+      list: d.players && d.players.list ? d.players.list.map(p => p.name_clean) : null,
+      version: d.version ? d.version.name_clean : "",
+      software: "",
+      icon: d.icon || null
+    };
+  }
+}
+
+function drawPlayers() {
+  const grid = $("players");
+  const q = $("search").value.trim().toLowerCase();
+  grid.textContent = "";
+  currentList.filter(n => n.toLowerCase().includes(q)).forEach(name => {
+    const el = document.createElement("div");
+    el.className = "player";
+    const img = document.createElement("img");
+    img.alt = "";
+    img.loading = "lazy";
+    img.src = `https://mc-heads.net/avatar/${encodeURIComponent(name)}/80`;
+    img.onerror = () => { img.onerror = null; img.src = "https://mc-heads.net/avatar/MHF_Steve/80"; };
+    const span = document.createElement("span");
+    span.textContent = name;
+    span.title = name;
+    el.append(img, span);
+    grid.append(el);
+  });
+}
+$("search").addEventListener("input", drawPlayers);
+
+function render(s) {
+  $("app").className = s.online ? "online" : "offline";
+  $("status").textContent = s.online ? "Online" : "Offline";
+  $("motd").textContent = s.online ? (s.motd || SERVER_NAME) : "The server is not responding right now.";
+  $("meta").textContent = s.online ? [s.version, s.software].filter(Boolean).join("  |  ") : "";
+  if (s.icon) $("icon").src = s.icon;
+
+  const pct = s.online && s.max_n ? Math.min(100, s.online_n / s.max_n * 100) : 0;
+  $("count").innerHTML = s.online ? `${s.online_n}<small> / ${s.max_n}</small>` : "-";
+  $("countLabel").textContent = s.online ? (s.online_n === 1 ? "player online" : "players online") : "offline";
+  $("cap").style.width = pct + "%";
+  $("badge").textContent = s.online ? s.online_n : 0;
+
+  const note = $("note");
+  note.textContent = "";
+  currentList = s.online && s.list ? s.list : [];
+  $("search").hidden = currentList.length < 6;
+  if (currentList.length < 6) $("search").value = "";
+  drawPlayers();
+
+  if (!s.online) note.textContent = "No players to show while the server is offline.";
+  else if (s.online_n === 0) note.textContent = "Nobody is online right now. Be the first to join.";
+  else if (!s.list || !s.list.length) note.textContent = `${s.online_n} online, but this server does not share player names.`;
+  else if (s.list.length < s.online_n) note.textContent = `Showing ${s.list.length} of ${s.online_n} players. The server only shares part of the list.`;
+}
+
+function renderError() {
+  $("app").className = "offline";
+  $("status").textContent = "No data";
+  $("motd").textContent = "Could not reach the status service. Check your connection and refresh.";
+  $("meta").textContent = "";
+  $("count").textContent = "-";
+  $("cap").style.width = "0";
+  currentList = [];
+  $("players").textContent = "";
+  $("note").textContent = "";
+}
+
+function skeletons() {
+  const grid = $("players");
+  grid.textContent = "";
+  for (let i = 0; i < 4; i++) { const s = document.createElement("div"); s.className = "skeleton"; grid.append(s); }
+}
+
+let remaining = REFRESH_SECONDS, busy = false, first = true;
+async function update() {
+  if (busy) return;
+  busy = true;
+  if (first) skeletons();
+  try { render(await fetchStatus()); } catch (e) { renderError(); }
+  first = false;
+  $("updated").textContent = "Last checked: " + new Date().toLocaleTimeString();
+  remaining = REFRESH_SECONDS;
+  busy = false;
+}
+
+setInterval(() => {
+  if (busy) return;
+  remaining = Math.max(0, remaining - 1);
+  $("next").textContent = `Refreshing in ${remaining}s`;
+  if (remaining === 0) update();
+}, 1000);
+
+$("refresh").addEventListener("click", update);
+update();
+</script>
+</body>
+</html>
